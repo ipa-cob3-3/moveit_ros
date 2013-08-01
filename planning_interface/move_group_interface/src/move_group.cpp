@@ -454,6 +454,41 @@ public:
       return false;
     }
   }
+
+  bool pick_WithResult(const std::string &object, const std::vector<manipulation_msgs::Grasp> &grasps, manipulation_msgs::Grasp &result_grasp)
+  {
+    if (!pick_action_client_)
+    {
+      ROS_ERROR_STREAM("Pick action client not found");
+      return false;
+    }
+    if (!pick_action_client_->isServerConnected())
+    {
+      ROS_ERROR_STREAM("Pick action server not connected");
+      return false;
+    }
+    moveit_msgs::PickupGoal goal;
+    moveit_msgs::PickupResult result; 
+    constructGoal(goal, object);
+    goal.possible_grasps = grasps;
+    goal.planning_options.plan_only = false;
+    pick_action_client_->sendGoal(goal); 
+    if (!pick_action_client_->waitForResult())
+    {
+      ROS_INFO_STREAM("Pickup action returned early");
+    }
+    if (pick_action_client_->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+    {
+      result = *(pick_action_client_->getResult()).get();
+      result_grasp = result.grasp;
+      return true;
+    }
+    else
+    {
+      ROS_WARN_STREAM("Fail: " << pick_action_client_->getState().toString() << ": " << pick_action_client_->getState().getText());
+      return false;
+    }
+  }
   
   bool plan(Plan &plan)
   {
@@ -911,6 +946,11 @@ bool MoveGroup::pick(const std::string &object, const manipulation_msgs::Grasp &
 bool MoveGroup::pick(const std::string &object, const std::vector<manipulation_msgs::Grasp> &grasps)
 {
   return impl_->pick(object, grasps);
+}
+
+bool MoveGroup::pick(const std::string &object, const std::vector<manipulation_msgs::Grasp> &grasps, manipulation_msgs::Grasp &result_grasp)
+{
+  return impl_->pick_WithResult(object, grasps, result_grasp);
 }
 
 bool MoveGroup::place(const std::string &object)
