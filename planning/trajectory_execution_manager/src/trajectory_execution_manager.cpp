@@ -1183,11 +1183,16 @@ bool TrajectoryExecutionManager::executePart(std::size_t part_index)
           time_index_.push_back(current_time + d + context.trajectory_parts_[longest_part].multi_dof_joint_trajectory.points[j].time_from_start);
       }
     }
-    
+
+    if(!execution_duration_monitoring_)
+    	ROS_INFO("Not monitoring execution!");
+
     bool result = true;
     for (std::size_t i = 0 ; i < handles.size() ; ++i)
     {
-      if (execution_duration_monitoring_)
+      
+      //if (execution_duration_monitoring_)
+      if(false)
       {
         if (!handles[i]->waitForExecution(expected_trajectory_duration))
           if (!execution_complete_ && ros::Time::now() - current_time > expected_trajectory_duration)
