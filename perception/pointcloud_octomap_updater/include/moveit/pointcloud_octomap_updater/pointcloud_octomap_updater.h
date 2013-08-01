@@ -46,6 +46,7 @@
 #include <moveit/point_containment_filter/shape_mask.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+#include <std_srvs/Empty.h>
 
 namespace occupancy_map_monitor
 {
@@ -64,6 +65,7 @@ public:
   virtual void stop();
   virtual ShapeHandle excludeShape(const shapes::ShapeConstPtr &shape);
   virtual void forgetShape(ShapeHandle handle);
+  bool resetSrv(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
 
 protected:
 
@@ -86,6 +88,7 @@ private:
   double max_range_;
   unsigned int point_subsample_;
   std::string filtered_cloud_topic_;
+  ros::ServiceServer reset_service_;
   ros::Publisher filtered_cloud_publisher_;
   
   message_filters::Subscriber<sensor_msgs::PointCloud2> *point_cloud_subscriber_;

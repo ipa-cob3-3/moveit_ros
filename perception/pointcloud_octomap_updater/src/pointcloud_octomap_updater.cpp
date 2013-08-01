@@ -90,6 +90,7 @@ bool PointCloudOctomapUpdater::initialize()
   shape_mask_->setTransformCallback(boost::bind(&PointCloudOctomapUpdater::getShapeTransform, this, _1, _2));
   if (!filtered_cloud_topic_.empty())
     filtered_cloud_publisher_ = private_nh_.advertise<sensor_msgs::PointCloud2>(filtered_cloud_topic_, 10, false);
+  reset_service_ = private_nh_.advertiseService("reset", &PointCloudOctomapUpdater::resetSrv, this);
   return true;
 }
 
@@ -312,5 +313,11 @@ void PointCloudOctomapUpdater::cloudMsgCallback(const sensor_msgs::PointCloud2::
     filtered_cloud_publisher_.publish(filtered_cloud_msg);
   }
 }
+
+bool PointCloudOctomapUpdater::resetSrv(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp) {
+  tree_->clear();
+  return true;
+}
+
 
 }
